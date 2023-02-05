@@ -1,8 +1,10 @@
 var express = require("express");
-var authRouter = require("./user");
+var userRouter = require("./auth");
+var sessionRouter = require("./session")
 
 var app = express();
 
-app.use("/user/", authRouter);
+app.use("/auth/", userRouter);
+app.use("/session/", sessionRouter);
 
 module.exports = app;

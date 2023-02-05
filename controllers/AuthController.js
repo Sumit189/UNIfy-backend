@@ -1,7 +1,9 @@
 const UserModel = require("../models/UserModel");
 const { body,validationResult } = require("express-validator");
 const { sanitizeBody } = require("express-validator");
+
 //helper file to prepare responses.
+const jwt = require("jsonwebtoken");
 const apiResponse = require("../helpers/apiResponse");
 
 /**
@@ -66,7 +68,7 @@ exports.register = [
 					} else {
 					  return apiResponse.successResponseWithData(res, "User registered successfully.", {uuid: user.uuid});
 					}
-				  });
+				});
             }
         }
         catch (err) {
@@ -76,13 +78,13 @@ exports.register = [
 ]
 
 /**
- * User Fetch with UUID.
+ * User Login with UUID.
  *
  * @param {string}      uuid
  *
  * @returns {Object}
  */
-exports.fetch = [
+exports.login = [
 	body("uuid").isLength({ min: 1 }).trim().withMessage("UUID must be specified."),
 	sanitizeBody("uuid").escape(),
 	(req, res) => {
@@ -93,7 +95,15 @@ exports.fetch = [
 			}else {
 				UserModel.findOne({uuid : req.body.uuid}, {_id: 0, firstName: 1, lastName: 1, type: 1, email: 1}).then(user => {
 					if (user) {
-						return apiResponse.successResponseWithData(res,"User Found.", user);
+                        let userData = {
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                            type: user.type,
+                            email: user.email,
+                        };
+
+                        const accessToken = generateAccesToken(userData)
+						return apiResponse.successResponseWithData(res, "User Found.", {accessToken: accessToken});
 					} else{
 						return apiResponse.unauthorizedResponse(res, "User Not Found");
 					}
@@ -104,3 +114,8 @@ exports.fetch = [
 		}
 	}
 ];
+
+const generateAccesToken = (data) => {
+    return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '3h'});
+}
+

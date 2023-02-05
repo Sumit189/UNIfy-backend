@@ -47,3 +47,12 @@ exports.unauthorizedResponse = function (res, msg) {
 	};
 	return res.status(401).json(data);
 };
+
+exports.customResponse = function (status, res, msg, data) {
+	var resData = {
+		status: 1,
+		message: msg,
+		data: data
+	};
+	return res.status(status).json(resData);
+};
