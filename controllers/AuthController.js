@@ -1,6 +1,8 @@
+require("dotenv").config();
 const UserModel = require("../models/UserModel");
 const { body, validationResult } = require("express-validator");
 const { sanitizeBody } = require("express-validator");
+const { ethers } = require("ethers");
 const auth = require("../middlewares/jwt");
 
 //helper file to prepare responses.
@@ -11,17 +13,13 @@ const apiResponse = require("../helpers/apiResponse");
 /**
 
 User registration.
-@param {string} userName
-@param {string} category
 @param {string} uuid
 @param {string} email
 @returns {Object}
 */
 exports.register = [
     // Validate fields
-    body("userName").isLength({ min: 1 }).trim().withMessage("User name must be specified.").isAlphanumeric().withMessage("First name has non-alphanumeric characters."),
-    body("category").isLength({ min: 1 }).trim().withMessage("Category must be specified.").isAlphanumeric().withMessage("Last name has non-alphanumeric characters."),
-    body("uuid").isLength({ min: 1 }).trim().withMessage("UUID must be specified.").isAlphanumeric().withMessage("UUID has non-alphanumeric characters."),
+    body("uuid").isLength({ min: 1 }).trim().withMessage("UUID must be specified."),
     body("email").isLength({ min: 1 }).trim().withMessage("Email must be specified.").isEmail().withMessage("Email must be a valid email address.").custom((value) => {
         return UserModel.findOne({email : value}).then((user) => {
             if (user) {
@@ -31,27 +29,40 @@ exports.register = [
     }),
 
     // Sanitize fields.
-    sanitizeBody("userName").escape(),
-    sanitizeBody("category").escape(),
     sanitizeBody("uuid").escape(),
     sanitizeBody("email").escape(),
 
     // Process request after validation and sanitization.
-    (req, res) => {
-		console.log(req.body);
+    async (req, res) => {
         try {
             // Extract the validation errors from a request.
-        const errors = validationResult(req);
+            const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                // Display sanitized values/errors messages.
                 return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
             } else {
                 // Create User object with escaped and trimmed data
+                const provider = new ethers.providers.JsonRpcProvider(process.env.QUICKNODE_HTTP_URL);
+                
+                const collection = await provider.send("qn_fetchNFTsByCollection", {
+                  collection: process.env.NFT_ADDRESS,
+                  page: 1,
+                  perPage: 50})
+
+                let randomIndex = Math.floor((Math.random() * 50) + 1)
+                let image = collection?.tokens?.[randomIndex]?.imageUrl
+
+                if (collection?.tokens && image === undefined) {
+                    while(image === undefined) {
+                        randomIndex = Math.floor((Math.random() * 50) + 1)
+                        image = collection?.tokens?.[randomIndex]?.imageUrl
+                    }
+                }
+            
                 var user = new UserModel({
-					userName: req.body.userName,
-					category: req.body.category,
+                    userName: req.body.userName,
 					uuid: req.body.uuid,
 					email: req.body.email,
+                    image: image
                 });
 				
 				user.save((error) => {
@@ -139,7 +150,7 @@ User Update.
 */
 exports.updateDetails = [
     auth,
-    
+
     // Validate fields.
     body("userName", "First name must be specified.").optional().isLength({ min: 1 }).trim(),
     body("category", "Category must be specified.").optional().isLength({ min: 1 }).trim(),
