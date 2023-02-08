@@ -2,7 +2,6 @@ const auth = require("../middlewares/jwt");
 const SlotModel = require("../models/SlotModel");
 const { body, validationResult, check } = require("express-validator");
 const { sanitizeBody } = require("express-validator");
-const checkTypes = require('check-types');
 
 
 
