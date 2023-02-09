@@ -193,23 +193,17 @@ exports.updateDetails = [
                 }
 
                 if (updateData) {
-                    UserModel.updateOne({id: req.user.id}, { $set: updateData }, (err, result) => {
+                    UserModel.findOneAndUpdate({_id: req.user.id}, { $set: updateData }, {new: true}, (err, result) => {
                         if (err) return apiResponse.successResponseWithData(res, "User Not Found", {success: false});
-                        UserModel.findOne({id: req.user.id}, {_id: 1, userName: 1, category: 1, type: 1, email: 1, image: 1}).then(user => {
-                            if (user) {
-                                let userData = {
-                                    id: user._id,
-                                    userName: user.userName,
-                                    email: user.email,
-                                    image: user.image,
-                                    category: user.category
-                                };
-                                const accessToken = generateAccesToken(userData)
-                                return apiResponse.successResponseWithData(res, "User Updated.", {accessToken: accessToken});
-                            } else{
-                                return apiResponse.successResponseWithData(res, "User Not Found");
-                            }
-                        });
+                        let userData = {
+                            id: result._id,
+                            userName: result.userName,
+                            email: result.email,
+                            image: result.image,
+                            category: result.category
+                        };
+                        const accessToken = generateAccesToken(userData)
+                        return apiResponse.successResponseWithData(res, "User Updated", {success: true, accessToken: accessToken});
                     });
                 } else {
                     return apiResponse.customResponse(403, res, "Missing Data")
