@@ -193,7 +193,7 @@ exports.updateDetails = [
                 }
 
                 if (updateData) {
-                    UserModel.updateOne({id: req.user.id}, { $set: updateData }, (err, result) => {
+                    UserModel.updateOne({id: req.user.id}, { $set: updateData }, {new: true}, (err, result) => {
                         if (err) return apiResponse.successResponseWithData(res, "User Not Found", {success: false});
                         let userData = {
                             id: result._id,
