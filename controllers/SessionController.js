@@ -20,22 +20,22 @@ exports.createSession = [
   auth,
   body("sessionName").isLength({ min: 1 }).trim().withMessage("Session Name is required."),
   body("sessionDesc").isLength({ min: 1 }).trim().withMessage("Session Description is required."),
-  body('date').notEmpty().withMessage('Date is required.').custom((value) => {
+  body('date').isEmpty().withMessage('Date is required.').custom((value) => {
     return value instanceof Date;
   }).withMessage('Invalid date format.'),
 
-  body('startTime').notEmpty().withMessage('Start time is required.')  .custom((value) => {
+  body('startTime').isEmpty().withMessage('Start time is required.')  .custom((value) => {
     return value instanceof Date;
   })
   .withMessage('Invalid start time format.'),
 
-  body('endTime').notEmpty().withMessage('End time is required.').custom((value, { req }) => {
+  body('endTime').isEmpty().withMessage('End time is required.').custom((value, { req }) => {
       return value > req.body.startTime;
   }).withMessage('End time must be greater than start time.').custom((value) => {
       return value instanceof Date;
   }).withMessage('Invalid end time format.'),
 
-  body('fee').notEmpty().withMessage('Fee is required.').isNumeric().withMessage('Fee must be a number.'),
+  body('fee').isEmpty().withMessage('Fee is required.').isNumeric().withMessage('Fee must be a number.'),
 
   sanitizeBody("sessionName").escape(),
   sanitizeBody("sessionDesc").escape(),

@@ -11,7 +11,7 @@ var SessionSchema = new Schema({
 	endTime: { type: Date, required: true },
 	fee: { type: Number, required: true },
 	streamKey: {type: String, required: true},
-	streamDetails: {type: Schema.Types.mixed, required: true}
+	streamDetails: {type: Schema.Types.Mixed, required: true}
 }, { timestamps: true });
 
 module.exports = mongoose.model("Session", SessionSchema);
