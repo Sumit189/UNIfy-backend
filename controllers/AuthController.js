@@ -130,9 +130,12 @@ exports.checkSignup = [
     sanitizeBody("userName").escape(),
 	(req, res) => {
 		try {
-			UserModel.findOne({uuid : req.body.uuid, userName: req.body.userName}).then(user => {
+			UserModel.findOne({uuid : req.body.uuid}).then(user => {
                 if (user) {
-                    return apiResponse.successResponseWithData(res, "User Found.", {success: true});
+                    if (user.userName)
+                        return apiResponse.successResponseWithData(res, "User Found.", {success: true, userName: true});
+                    else 
+                        return apiResponse.successResponseWithData(res, "User Found", {success: true, userName: false});
                 } else{
                     return apiResponse.successResponseWithData(res, "User not found", {success: false})
                 }
