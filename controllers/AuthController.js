@@ -102,12 +102,13 @@ exports.login = [
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			} else {
-				UserModel.findOne({uuid : req.body.uuid}, {_id: 1, userName: 1, category: 1, type: 1, email: 1}).then(user => {
+				UserModel.findOne({uuid : req.body.uuid}, {_id: 1, userName: 1, category: 1, type: 1, email: 1, image: 1}).then(user => {
 					if (user) {
                         let userData = {
                             id: user._id,
                             userName: user.userName,
                             email: user.email,
+                            image: user.image
                         };
                         const accessToken = generateAccesToken(userData)
 						return apiResponse.successResponseWithData(res, "User Found.", {accessToken: accessToken});
