@@ -172,7 +172,7 @@ exports.removeAttendee = [
  *
  * @returns {boolean}
  */
-exports.createSession = [
+exports.deleteSession = [
   auth,
   body("streamKey").isLength({ min: 1 }).trim().withMessage("StreamKey must be specified."),
   sanitizeBody("streamKey").escape(),
