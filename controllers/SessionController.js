@@ -2,7 +2,9 @@ const auth = require("../middlewares/jwt");
 const { body, validationResult, sanitizeBody } = require("express-validator");
 const apiResponse = require("../helpers/apiResponse");
 const SessionModel = require("../models/SessionModel")
-const createStream = require("../services/LivepeerStreamService")
+const streams = require("../services/LivepeerStreamService")
+const createStream = streams.createStream;
+const deleteStream = streams.deleteStream;
 
 /**
  * Create a Session.
@@ -11,7 +13,7 @@ const createStream = require("../services/LivepeerStreamService")
  * @param {string}    sessionDesc
  * @param {Date}      date
  * @param {Date}      startTime
- * @param {Date}      endTime
+ * @param {number}    duration
  * @param {number}    fee
  *
  * @returns {Object}
@@ -20,48 +22,39 @@ exports.createSession = [
   auth,
   body("sessionName").isLength({ min: 1 }).trim().withMessage("Session Name is required."),
   body("sessionDesc").isLength({ min: 1 }).trim().withMessage("Session Description is required."),
-  body('date').isEmpty().withMessage('Date is required.').custom((value) => {
-    return value instanceof Date;
-  }).withMessage('Invalid date format.'),
+  body('date').not().isEmpty().withMessage('Date is required.'),
 
-  body('startTime').isEmpty().withMessage('Start time is required.')  .custom((value) => {
-    return value instanceof Date;
-  })
-  .withMessage('Invalid start time format.'),
+  body('startTime').not().isEmpty().withMessage('Start time is required.'),
 
-  body('endTime').isEmpty().withMessage('End time is required.').custom((value, { req }) => {
-      return value > req.body.startTime;
-  }).withMessage('End time must be greater than start time.').custom((value) => {
-      return value instanceof Date;
-  }).withMessage('Invalid end time format.'),
+  body('duration').not().isEmpty().withMessage('Fee is required.').isNumeric().withMessage('Fee must be a number.'),
 
-  body('fee').isEmpty().withMessage('Fee is required.').isNumeric().withMessage('Fee must be a number.'),
+  body('fee').not().isEmpty().withMessage('Fee is required.').isNumeric().withMessage('Fee must be a number.'),
 
   sanitizeBody("sessionName").escape(),
   sanitizeBody("sessionDesc").escape(),
   sanitizeBody("date").escape(),
   sanitizeBody("startTime").escape(),
-  sanitizeBody("endTime").escape(),
+  sanitizeBody("duration").escape(),
   sanitizeBody("fee").escape(),
   (req, res) => {
-    try {
+    // try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
       } else {
 
-        createStream({sessionName: sessionName}, (err, data) => {
-          if (err) return apiResponse.ErrorResponse(res, err)
-
+        createStream({sessionName: req.body.sessionName}, (err, data) => {
+          if (err || !data) return apiResponse.ErrorResponse(res, err)
           let session = new SessionModel({
             user: req.user._id,
             sessionName: req.body.sessionName,
             sessionDesc: req.body.sessionDesc,
             date: req.body.date,
             startTime: req.body.startTime,
-            endTime: req.body.endTime,
+            duartion: req.body.duration,
             fee: req.body.fee,
             streamKey: data.streamKey,
+            streamId: data.streamId,
             streamDetails: data.streamDetails
           });
 
@@ -73,9 +66,10 @@ exports.createSession = [
           });
         })
       }
-    } catch (err) {
-      return apiResponse.ErrorResponse(res, err);
-    }
+    // } catch (err) {
+    //   console.log(err);
+    //   return apiResponse.ErrorResponse(res, err);
+    // }
   }
 ];
 
@@ -101,7 +95,7 @@ exports.addAttendee = [
           if (err) {
             return apiResponse.ErrorResponse(res, err);
           } else if (user) {
-            SessionModel.findById(req.params.sessionId, (err, session) => {
+            SessionModel.findById(req.body.sessionId, (err, session) => {
               if (err) {
                 return apiResponse.ErrorResponse(res, err);
               } else if (session) {
@@ -143,7 +137,7 @@ exports.removeAttendee = [
       if (!errors.isEmpty()) {
         return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
       } else {
-        SessionModel.findById(req.params.sessionId, (err, session) => {
+        SessionModel.findById(req.body.sessionId, (err, session) => {
           if (err) {
             return apiResponse.ErrorResponse(res, err);
           } else if (session) {
@@ -170,4 +164,39 @@ exports.removeAttendee = [
   }
 ];
 
+
+/**
+ * Delete a Session.
+ *
+ * @param {streamKey} streamKey
+ *
+ * @returns {boolean}
+ */
+exports.createSession = [
+  auth,
+  body("streamKey").isLength({ min: 1 }).trim().withMessage("StreamKey must be specified."),
+  sanitizeBody("streamKey").escape(),
+  (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
+      } else {
+        SessionModel.findOne({streamKey: req.body.streamKey}, {streamId: 1}, (err, session) => {
+          if (err) {
+            return apiResponse.ErrorResponse(res, err);
+          }
+          deleteStream({streamId: session.streamId}, (err, result) => {
+            if (err) {
+              return apiResponse.ErrorResponse(res, err);
+            }
+            return apiResponse.successResponseWithData(res, "Stream Deleted",  {success: true})
+          })
+        });
+      }
+    } catch (err) {
+      return apiResponse.ErrorResponse(res, err);
+    }
+  }
+]
 

@@ -8,10 +8,11 @@ var SessionSchema = new Schema({
 	sessionDesc: {type: String, required: true},
 	date: { type: Date, required: true },
 	startTime: { type: Date, required: true },
-	endTime: { type: Date, required: true },
+	duration: { type: Number, required: true },
 	fee: { type: Number, required: true },
 	streamKey: {type: String, required: true},
-	streamDetails: {type: Schema.Types.Mixed, required: true}
+	streamDetails: {type: Schema.Types.Mixed, required: true},
+	streamId: {type: String, required: true}
 }, { timestamps: true });
 
 module.exports = mongoose.model("Session", SessionSchema);

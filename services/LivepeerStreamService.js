@@ -40,9 +40,32 @@ const createStream = (opts, callback) => {
         })
     };
     request(options, function (error, response) {
-        if (error || !response.body?.streamKey) return callback(error, null)
-        return callback(null, {streamKey: response.body.streamKey, streamDetails: response.body})
+        if (error || !response.body) return callback(error)
+        let result = JSON.parse(response.body)
+        LivepeerStreamService.deleteStream(result.streamId);
+        return callback(null, {streamKey: result.streamKey, streamId: result.id, streamDetails: result})
     });
 }
 
-module.exports = createStream;
+const deleteStream = (opts, callback) => {
+    if (!opts.streamId) {
+        return callback("Session Name is Missing", null)
+    }
+    var options = {
+    'method': 'DELETE',
+    'url': `https://livepeer.studio/api/stream/${opts.streamId}`,
+    'headers': {
+        'authorization': process.env.LIVEPEER_APIKEY
+    }
+    };
+    request(options, function (error, response) {
+        if (error || !response.body) return callback(error)
+        return callback(null, {success: true})
+    });
+
+}
+
+module.exports = {
+    createStream,
+    deleteStream
+  };
