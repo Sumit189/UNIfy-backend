@@ -19,7 +19,13 @@ User registration.
 */
 exports.register = [
     // Validate fields
-    body("uuid").isLength({ min: 1 }).trim().withMessage("UUID must be specified."),
+    body("uuid").isLength({ min: 1 }).trim().withMessage("UUID must be specified.").custom((value) => {
+        return UserModel.findOne({uuid : value}).then((user) => {
+            if (user) {
+                return Promise.reject("UUID already in use");
+            }
+        });
+    }),
     body("email").isLength({ min: 1 }).trim().withMessage("Email must be specified.").isEmail().withMessage("Email must be a valid email address.").custom((value) => {
         return UserModel.findOne({email : value}).then((user) => {
             if (user) {
