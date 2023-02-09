@@ -106,7 +106,7 @@ exports.login = [
                         const accessToken = generateAccesToken(userData)
 						return apiResponse.successResponseWithData(res, "User Found.", {accessToken: accessToken});
 					} else{
-						return apiResponse.unauthorizedResponse(res, "User Not Found");
+						return apiResponse.successResponseWithData(res, "User Not Found");
 					}
 				});
 			}
@@ -181,7 +181,7 @@ exports.updateDetails = [
 
                 if (userData) {
                     UserModel.updateOne({id: req.user.id}, { $set: userData }, (err, result) => {
-                        if (err) return apiResponse.unauthorizedResponse(res, "User Not Found", {success: false});
+                        if (err) return apiResponse.successResponseWithData(res, "User Not Found", {success: false});
                         return apiResponse.successResponseWithData(res, "User Updated", {success: true});
                     });
                 } else {
