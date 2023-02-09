@@ -185,7 +185,8 @@ exports.updateDetails = [
                 if (userData) {
                     UserModel.updateOne({id: req.user.id}, { $set: userData }, (err, result) => {
                         if (err) return apiResponse.successResponseWithData(res, "User Not Found", {success: false});
-                        return apiResponse.successResponseWithData(res, "User Updated", {success: true});
+                        const accessToken = generateAccesToken(result)
+                        return apiResponse.successResponseWithData(res, "User Updated", {success: true, accessToken: accessToken});
                     });
                 } else {
                     return apiResponse.customResponse(403, res, "Missing Data")
