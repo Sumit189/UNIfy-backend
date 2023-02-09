@@ -123,7 +123,8 @@ exports.login = [
  * @returns {boolean}
  */
 exports.checkSignup = [
-    auth,
+	body("uuid").isLength({ min: 1 }).trim().withMessage("UUID must be specified."),
+	sanitizeBody("uuid").escape(),
 	(req, res) => {
 		try {
 			UserModel.findOne({uuid : req.body.uuid}).then(user => {
