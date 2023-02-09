@@ -102,15 +102,9 @@ exports.login = [
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			} else {
-				UserModel.findOne({uuid : req.body.uuid}, {_id: 1, userName: 1, category: 1, type: 1, email: 1, image: 1}).then(user => {
+				UserModel.findOne({uuid : req.body.uuid}).then(user => {
 					if (user) {
-                        let userData = {
-                            id: user._id,
-                            userName: user.userName,
-                            email: user.email,
-                            image: user.image
-                        };
-                        const accessToken = generateAccesToken(userData)
+                        const accessToken = generateAccesToken(user)
 						return apiResponse.successResponseWithData(res, "User Found.", {accessToken: accessToken});
 					} else{
 						return apiResponse.successResponseWithData(res, "User Not Found");
@@ -131,10 +125,12 @@ exports.login = [
  */
 exports.checkSignup = [
 	body("uuid").isLength({ min: 1 }).trim().withMessage("UUID must be specified."),
+    body("userName").isLength({ min: 1 }).trim().withMessage("UserNam must be specified."),
 	sanitizeBody("uuid").escape(),
+    sanitizeBody("userName").escape(),
 	(req, res) => {
 		try {
-			UserModel.findOne({uuid : req.body.uuid}).then(user => {
+			UserModel.findOne({uuid : req.body.uuid, userName: req.body.userName}).then(user => {
                 if (user) {
                     return apiResponse.successResponseWithData(res, "User Found.", {success: true});
                 } else{
