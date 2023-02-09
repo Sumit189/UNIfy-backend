@@ -131,7 +131,7 @@ exports.checkSignup = [
                 if (user) {
                     return apiResponse.successResponseWithData(res, "User Found.", {success: true});
                 } else{
-                    return apiResponse.customResponse(204, res, "User not found", {success: false})
+                    return apiResponse.successResponseWithData(res, "User not found", {success: false})
                 }
             });
 		} catch (err) {
