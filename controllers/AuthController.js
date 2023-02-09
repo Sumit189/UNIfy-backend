@@ -102,9 +102,16 @@ exports.login = [
 			if (!errors.isEmpty()) {
 				return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
 			} else {
-				UserModel.findOne({uuid : req.body.uuid}).then(user => {
+				UserModel.findOne({uuid : req.body.uuid}, {_id: 1, userName: 1, category: 1, type: 1, email: 1, image: 1}).then(user => {
 					if (user) {
-                        const accessToken = generateAccesToken(user)
+                        let userData = {
+                            id: user._id,
+                            userName: user.userName,
+                            email: user.email,
+                            image: user.image,
+                            category: user.category
+                        };
+                        const accessToken = generateAccesToken(userData)
 						return apiResponse.successResponseWithData(res, "User Found.", {accessToken: accessToken});
 					} else{
 						return apiResponse.successResponseWithData(res, "User Not Found");
@@ -188,7 +195,14 @@ exports.updateDetails = [
                 if (userData) {
                     UserModel.updateOne({id: req.user.id}, { $set: userData }, (err, result) => {
                         if (err) return apiResponse.successResponseWithData(res, "User Not Found", {success: false});
-                        const accessToken = generateAccesToken(result)
+                        let userData = {
+                            id: result._id,
+                            userName: result.userName,
+                            email: result.email,
+                            image: result.image,
+                            category: result.category
+                        };
+                        const accessToken = generateAccesToken(userData)
                         return apiResponse.successResponseWithData(res, "User Updated", {success: true, accessToken: accessToken});
                     });
                 } else {
