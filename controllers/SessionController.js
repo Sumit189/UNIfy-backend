@@ -212,6 +212,7 @@ exports.getAllSessions = [
       } else {
         SessionModel.find({})
         .populate({ path: 'user', select: 'userName image' }) // populate user field with userName and image only
+        .sort({_id: -1})
         .exec((err, sessions) => {
           if (err) {
             return apiResponse.ErrorResponse(res, err);
