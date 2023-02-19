@@ -9,5 +9,6 @@ router.post("/add/user", SessionController.addAttendee);
 router.post("/remove/user", SessionController.removeAttendee);
 router.post("/sessions", SessionController.getAllSessions)
 router.post("/mysessions", SessionController.getMySessions)
+router.get("/:sessionId", SessionController.sessionInfo)
 
 module.exports = router;

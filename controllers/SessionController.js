@@ -260,3 +260,30 @@ exports.getMySessions = [
 ];
 
 
+
+
+
+/**
+ * Get Session From Id
+ */
+exports.sessionInfo = [
+  auth,
+  (req, res) => {
+    try {
+      SessionModel.findOne({_id: req.params.sessionId})
+        .populate({ path: 'user', select: 'userName image' }) // populate user field with userName and image only
+        .exec((err, sessions) => {
+          if (err) {
+            return apiResponse.ErrorResponse(res, err);
+          }
+          else if(sessions) {
+            return apiResponse.successResponseWithData(res, "Found Sessions", sessions)
+          } else{
+            return apiResponse.notFoundResponse(res, "No sessions found");
+          }
+        });
+    } catch (err) {
+      return apiResponse.ErrorResponse(res, err);
+    }
+  }
+];
