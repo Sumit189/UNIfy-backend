@@ -196,7 +196,7 @@ exports.deleteSession = [
   }
 ]
 /**
- * Get Events
+ * Get All Sessions
  * @param {Date} date
  */
 exports.getAllSessions = [
@@ -210,6 +210,36 @@ exports.getAllSessions = [
         return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
       } else {
         SessionModel.find({date: req.body.date}, (err, sessions) => {
+          if (err) {
+            return apiResponse.ErrorResponse(res, err);
+          } else if (sessions) {
+             return apiResponse.successResponseWithData(res, "Found Sessions", sessions)
+          } else{
+            return apiResponse.notFoundResponse(res, "No sessions found");
+          }
+        })
+      }
+    } catch (err) {
+      return apiResponse.ErrorResponse(res, err);
+    }
+  }
+];
+
+/**
+ * Get My Sessions
+ * @param {string} userId 
+ */
+exports.getMySessions = [
+  auth,
+  body('date').not().isEmpty().withMessage('Date is required.'),
+  sanitizeBody("date").escape(),
+  (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
+      } else {
+        SessionModel.find({date: req.body.date, userId: req.user.id}, (err, sessions) => {
           if (err) {
             return apiResponse.ErrorResponse(res, err);
           } else if (sessions) {

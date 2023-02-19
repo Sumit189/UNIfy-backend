@@ -8,5 +8,6 @@ router.post("/delete", SessionController.deleteSession);
 router.post("/add/user", SessionController.addAttendee);
 router.post("/remove/user", SessionController.removeAttendee);
 router.post("/sessions", SessionController.getAllSessions)
+router.post("/mysessions", SessionController.getMySessions)
 
 module.exports = router;
