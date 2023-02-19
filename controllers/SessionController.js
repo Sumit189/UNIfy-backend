@@ -210,7 +210,7 @@ exports.getAllSessions = [
       if (!errors.isEmpty()) {
         return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
       } else {
-        SessionModel.find({})
+        SessionModel.find({user: {$ne: req.user.id}})
         .populate({ path: 'user', select: 'userName image' }) // populate user field with userName and image only
         .sort({_id: -1})
         .exec((err, sessions) => {
