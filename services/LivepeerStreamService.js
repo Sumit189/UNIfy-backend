@@ -42,14 +42,13 @@ const createStream = (opts, callback) => {
     request(options, function (error, response) {
         if (error || !response.body) return callback(error)
         let result = JSON.parse(response.body)
-        LivepeerStreamService.deleteStream(result.streamId);
         return callback(null, {streamKey: result.streamKey, streamId: result.id, streamDetails: result})
     });
 }
 
 const deleteStream = (opts, callback) => {
-    if (!opts.streamId) {
-        return callback("Session Name is Missing", null)
+    if (!opts?.streamId) {
+        return callback("Session Id is Missing", null)
     }
     var options = {
     'method': 'DELETE',

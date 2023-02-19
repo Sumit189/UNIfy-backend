@@ -23,11 +23,8 @@ exports.createSession = [
   body("sessionName").isLength({ min: 1 }).trim().withMessage("Session Name is required."),
   body("sessionDesc").isLength({ min: 1 }).trim().withMessage("Session Description is required."),
   body('date').not().isEmpty().withMessage('Date is required.'),
-
   body('startTime').not().isEmpty().withMessage('Start time is required.'),
-
-  body('duration').not().isEmpty().withMessage('Fee is required.').isNumeric().withMessage('Fee must be a number.'),
-
+  body('duration').not().isEmpty().withMessage('duration is required.').isNumeric().withMessage('duration must be a number.'),
   body('fee').not().isEmpty().withMessage('Fee is required.').isNumeric().withMessage('Fee must be a number.'),
 
   sanitizeBody("sessionName").escape(),
@@ -42,16 +39,15 @@ exports.createSession = [
       if (!errors.isEmpty()) {
         return apiResponse.validationErrorWithData(res, "Validation Error.", errors.array());
       } else {
-
         createStream({sessionName: req.body.sessionName}, (err, data) => {
           if (err || !data) return apiResponse.ErrorResponse(res, err)
           let session = new SessionModel({
-            user: req.user._id,
+            user: req.user.id,
             sessionName: req.body.sessionName,
             sessionDesc: req.body.sessionDesc,
             date: req.body.date,
             startTime: req.body.startTime,
-            duartion: req.body.duration,
+            duration: req.body.duration,
             fee: req.body.fee,
             streamKey: data.streamKey,
             streamId: data.streamId,
