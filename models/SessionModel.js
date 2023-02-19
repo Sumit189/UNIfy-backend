@@ -7,7 +7,7 @@ var SessionSchema = new Schema({
 	sessionName: {type: String, required: true},
 	sessionDesc: {type: String, required: true},
 	date: { type: Date, required: true },
-	startTime: { type: Date, required: true },
+	startTime: { type: String, required: true },
 	duration: { type: Number, required: true },
 	fee: { type: Number, required: true },
 	streamKey: {type: String, required: true},
