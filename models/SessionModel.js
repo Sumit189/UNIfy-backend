@@ -6,6 +6,7 @@ var SessionSchema = new Schema({
 	attendees: [{ type: Schema.Types.ObjectId, ref: "User", required: false }],
 	sessionName: {type: String, required: true},
 	sessionDesc: {type: String, required: true},
+	wallet: {type: String, required: true},
 	date: { type: Date, required: true },
 	startTime: { type: String, required: true },
 	duration: { type: Number, required: true },

@@ -22,6 +22,7 @@ exports.createSession = [
   auth,
   body("sessionName").isLength({ min: 1 }).trim().withMessage("Session Name is required."),
   body("sessionDesc").isLength({ min: 1 }).trim().withMessage("Session Description is required."),
+  body("wallet").isLength({ min: 1 }).trim().withMessage("Wallet is required"),
   body('date').not().isEmpty().withMessage('Date is required.'),
   body('startTime').not().isEmpty().withMessage('Start time is required.'),
   body('duration').not().isEmpty().withMessage('duration is required.').isNumeric().withMessage('duration must be a number.'),
@@ -33,6 +34,7 @@ exports.createSession = [
   sanitizeBody("startTime").escape(),
   sanitizeBody("duration").escape(),
   sanitizeBody("fee").escape(),
+  sanitizeBody("wallet").escape(),
   (req, res) => {
     // try {
       const errors = validationResult(req);
@@ -45,6 +47,7 @@ exports.createSession = [
             user: req.user.id,
             sessionName: req.body.sessionName,
             sessionDesc: req.body.sessionDesc,
+            wallet: req.body.wallet,
             date: req.body.date,
             startTime: req.body.startTime,
             duration: req.body.duration,
